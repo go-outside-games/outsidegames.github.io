@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Outside Games</title>
+<link href="https://fonts.googleapis.com/css2?family=Black+Ops+One&family=Rajdhani:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#08080f;--surface:#0f0f1a;--card:#14141f;--card2:#1a1a2a;
+  --accent:#00ffaa;--accent2:#ff2d55;--accent3:#ffd700;
+  --text:#eeeef5;--muted:#5a5a72;--border:#1e1e30;
+  --verified:#00ffaa;--community:#a78bfa;
+}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:'Rajdhani',sans-serif;font-size:16px;min-height:100vh;overflow-x:hidden;}
+body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.07) 2px,rgba(0,0,0,0.07) 4px);pointer-events:none;z-index:9999;}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(var(--border) 1px,transparent 1px),linear-gradient(90deg,var(--border) 1px,transparent 1px);background-size:48px 48px;opacity:0.22;pointer-events:none;z-index:0;}
+
+header{position:relative;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:26px 48px;border-bottom:1px solid var(--border);background:rgba(8,8,15,0.92);backdrop-filter:blur(12px);}
+.logo{font-family:'Black Ops One',cursive;font-size:2rem;letter-spacing:3px;color:var(--accent);text-shadow:0 0 30px rgba(0,255,170,0.5);}
+.logo span{color:var(--accent2);text-shadow:0 0 30px rgba(255,45,85,0.5);}
+.header-right{display:flex;align-items:center;gap:14px;}
+.admin-btn{font-family:'Black Ops One',cursive;font-size:0.7rem;letter-spacing:2px;padding:8px 18px;background:transparent;border:1px solid var(--accent3);color:var(--accent3);cursor:pointer;transition:all 0.2s;clip-path:polygon(0 0,calc(100% - 8px) 0,100% 8px,100% 100%,0 100%);}
+.admin-btn:hover{background:rgba(255,215,0,0.1);}
+.badge-admin{font-size:0.65rem;font-weight:700;letter-spacing:1px;padding:3px 9px;background:var(--accent3);color:#000;font-family:'Black Ops One',cursive;}
+
+nav{position:sticky;top:0;z-index:90;background:rgba(8,8,15,0.96);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);display:flex;overflow-x:auto;padding:0 48px;}
+nav::-webkit-scrollbar{height:2px;}
+nav::-webkit-scrollbar-thumb{background:var(--accent);}
+.tab-btn{font-family:'Black Ops One',cursive;font-size:0.72rem;letter-spacing:2px;padding:16px 22px;background:transparent;color:var(--muted);border:none;border-bottom:2px solid transparent;cursor:pointer;transition:all 0.2s;white-space:nowrap;}
+.tab-btn:hover{color:var(--text);}
+.tab-btn.active{color:var(--accent);border-bottom-color:var(--accent);}
+.tab-btn.ctab.active{color:var(--community);border-bottom-color:var(--community);}
+.tab-btn.ptab.active{color:var(--accent3);border-bottom-color:var(--accent3);}
+.tab-btn.contact-tab.active{color:var(--accent2);border-bottom-color:var(--accent2);}
+
+main{position:relative;z-index:10;padding:40px 48px;min-height:calc(100vh - 130px);}
+.tab-panel{display:none;animation:fadeUp 0.3s ease;}
+.tab-panel.active{display:block;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
+
+.section-head{margin-bottom:32px;}
+.section-title{font-family:'Black Ops One',cursive;font-size:1.55rem;letter-spacing:3px;color:var(--accent);text-shadow:0 0 20px rgba(0,255,170,0.3);margin-bottom:4px;}
+.section-title.cv{color:var(--community);text-shadow:0 0 20px rgba(167,139,250,0.3);}
+.section-title.pv{color:var(--accent3);text-shadow:0 0 20px rgba(255,215,0,0.3);}
+.section-title.rv{color:var(--accent2);text-shadow:0 0 20px rgba(255,45,85,0.3);}
+.section-sub{color:var(--muted);font-size:0.82rem;letter-spacing:2px;text-transform:uppercase;}
+
+/* ADMIN PANEL */
+.admin-panel{background:rgba(255,215,0,0.03);border:1px solid rgba(255,215,0,0.18);padding:18px 22px;margin-bottom:26px;display:none;}
+.admin-panel.open{display:block;}
+.admin-panel-title{font-family:'Black Ops One',cursive;font-size:0.7rem;letter-spacing:2px;color:var(--accent3);margin-bottom:10px;}
+.admin-actions{display:flex;gap:10px;flex-wrap:wrap;}
+.admin-action-btn{font-family:'Black Ops One',cursive;font-size:0.7rem;letter-spacing:1px;padding:9px 18px;background:var(--accent3);color:#000;border:none;cursor:pointer;transition:all 0.2s;clip-path:polygon(0 0,calc(100% - 6px) 0,100% 6px,100% 100%,0 100%);}
+.admin-action-btn:hover{background:#fff;}
+
+/* GAMES GRID */
+.games-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(265px,1fr));gap:20px;}
+.game-card{background:var(--card);border:1px solid var(--border);position:relative;transition:transform 0.25s,border-color 0.25s,box-shadow 0.25s;clip-path:polygon(0 0,calc(100% - 18px) 0,100% 18px,100% 100%,0 100%);overflow:hidden;}
+.game-card:hover{transform:translateY(-5px);border-color:var(--accent);box-shadow:0 12px 40px rgba(0,255,170,0.12);}
+.game-card.cc:hover{border-color:var(--community);box-shadow:0 12px 40px rgba(167,139,250,0.12);}
+.game-card::before{content:'';position:absolute;top:0;right:0;width:18px;height:18px;background:var(--accent);clip-path:polygon(0 0,100% 100%,100% 0);z-index:2;}
+.game-card.cc::before{background:var(--community);}
+.game-thumb{width:100%;height:148px;background:linear-gradient(135deg,#1a1a2e,#16213e);display:flex;align-items:center;justify-content:center;font-size:3.5rem;border-bottom:1px solid var(--border);position:relative;}
+.vbadge{position:absolute;top:8px;left:8px;font-family:'Black Ops One',cursive;font-size:0.58rem;letter-spacing:1px;padding:3px 8px;}
+.vbadge.vv{background:var(--accent);color:#000;}
+.vbadge.vc{background:var(--community);color:#000;}
+.game-body{padding:16px;}
+.game-title{font-family:'Black Ops One',cursive;font-size:1rem;letter-spacing:1px;margin-bottom:5px;}
+.game-meta-line{font-size:0.75rem;color:var(--muted);margin-bottom:8px;letter-spacing:0.5px;}
+.game-desc{font-size:0.84rem;color:var(--muted);line-height:1.55;margin-bottom:12px;}
+.game-tags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:13px;}
+.tag{font-size:0.62rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:2px 8px;border:1px solid var(--accent);color:var(--accent);background:rgba(0,255,170,0.04);}
+.tag.tc{border-color:var(--community);color:var(--community);background:rgba(167,139,250,0.04);}
+.tag.tm{border-color:var(--muted);color:var(--muted);}
+.game-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+.dl-btn{font-family:'Black Ops One',cursive;font-size:0.68rem;letter-spacing:1px;padding:8px 16px;background:var(--accent);color:#000;border:none;cursor:pointer;transition:all 0.2s;clip-path:polygon(0 0,calc(100% - 6px) 0,100% 6px,100% 100%,0 100%);text-decoration:none;display:inline-block;}
+.dl-btn:hover{background:#fff;box-shadow:0 0 20px rgba(0,255,170,0.4);}
+.dl-btn.dc{background:var(--community);}
+.dl-btn.dc:hover{background:#fff;box-shadow:0 0 20px rgba(167,139,250,0.4);}
+.del-btn{font-family:'Black Ops One',cursive;font-size:0.62rem;letter-spacing:1px;padding:7px 11px;background:transparent;border:1px solid var(--accent2);color:var(--accent2);cursor:pointer;transition:all 0.2s;}
+.del-btn:hover{background:rgba(255,45,85,0.1);}
+
+/* UPLOAD ZONE */
+.upload-zone{background:transparent;border:2px dashed var(--border);padding:34px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:10px;cursor:pointer;transition:all 0.2s;min-height:265px;}
+.upload-zone:hover,.upload-zone.dov{border-color:var(--accent);background:rgba(0,255,170,0.02);}
+.upload-zone.czn:hover,.upload-zone.czn.dov{border-color:var(--community);background:rgba(167,139,250,0.02);}
+.upload-icon{font-size:2.8rem;transition:transform 0.2s;}
+.upload-zone:hover .upload-icon,.upload-zone.dov .upload-icon{transform:scale(1.12);}
+.upload-label{font-family:'Black Ops One',cursive;font-size:0.95rem;letter-spacing:2px;color:var(--muted);}
+.upload-zone:hover .upload-label{color:var(--accent);}
+.upload-zone.czn:hover .upload-label{color:var(--community);}
+.upload-sub{font-size:0.78rem;color:var(--muted);letter-spacing:1px;}
+
+/* SOURCE */
+.source-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(295px,1fr));gap:18px;}
+.source-card{background:var(--card);border:1px solid var(--border);padding:22px;transition:border-color 0.2s,transform 0.2s;}
+.source-card:hover{border-color:var(--accent2);transform:translateY(-3px);}
+.source-head{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.source-name{font-family:'Black Ops One',cursive;font-size:0.98rem;letter-spacing:1px;}
+.source-lang{font-size:0.62rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:2px 8px;border:1px solid var(--accent2);color:var(--accent2);margin-left:auto;}
+.source-desc{font-size:0.83rem;color:var(--muted);line-height:1.55;margin-bottom:14px;}
+.source-btn{display:inline-flex;align-items:center;gap:6px;font-family:'Black Ops One',cursive;font-size:0.68rem;letter-spacing:2px;padding:8px 16px;background:transparent;border:1px solid var(--accent2);color:var(--accent2);cursor:pointer;text-decoration:none;transition:all 0.2s;}
+.source-btn:hover{background:rgba(255,45,85,0.08);}
+.empty-card{background:transparent;border:2px dashed var(--border);padding:40px;text-align:center;color:var(--muted);}
+.empty-card p{font-family:'Black Ops One',cursive;letter-spacing:1px;margin-bottom:5px;}
+
+/* PROJECTS */
+.projects-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:20px;}
+.project-card{background:var(--card);border:1px solid var(--border);padding:22px;position:relative;transition:border-color 0.2s,transform 0.2s;}
+.project-card:hover{border-color:var(--accent3);transform:translateY(-3px);}
+.project-card::before{content:'';position:absolute;top:0;right:0;width:14px;height:14px;background:var(--accent3);clip-path:polygon(0 0,100% 100%,100% 0);}
+.project-status{font-family:'Black Ops One',cursive;font-size:0.6rem;letter-spacing:2px;padding:3px 9px;border:1px solid var(--accent3);color:var(--accent3);display:inline-block;margin-bottom:12px;}
+.project-title{font-family:'Black Ops One',cursive;font-size:1.05rem;letter-spacing:1px;margin-bottom:8px;}
+.project-desc{font-size:0.85rem;color:var(--muted);line-height:1.6;margin-bottom:12px;}
+.project-date{font-size:0.75rem;color:var(--muted);letter-spacing:1px;font-weight:600;text-transform:uppercase;}
+.project-date span{color:var(--accent3);}
+.proj-del{position:absolute;bottom:14px;right:14px;font-family:'Black Ops One',cursive;font-size:0.58rem;letter-spacing:1px;padding:5px 9px;background:transparent;border:1px solid #2a2a3a;color:var(--muted);cursor:pointer;transition:all 0.2s;}
+.proj-del:hover{border-color:var(--accent2);color:var(--accent2);}
+
+/* CONTACT */
+.contact-wrap{max-width:560px;}
+.contact-card{background:var(--card);border:1px solid var(--border);padding:36px;clip-path:polygon(0 0,calc(100% - 24px) 0,100% 24px,100% 100%,0 100%);position:relative;}
+.contact-card::before{content:'';position:absolute;top:0;right:0;width:24px;height:24px;background:var(--accent2);clip-path:polygon(0 0,100% 100%,100% 0);}
+.contact-intro{color:var(--muted);margin-bottom:22px;line-height:1.7;font-size:0.92rem;}
+.email-link{display:flex;align-items:center;gap:12px;padding:16px;background:rgba(255,45,85,0.04);border:1px solid var(--accent2);text-decoration:none;color:var(--accent2);font-family:'Black Ops One',cursive;font-size:0.88rem;letter-spacing:1px;transition:all 0.2s;margin-bottom:26px;}
+.email-link:hover{background:rgba(255,45,85,0.1);}
+.form-group{margin-bottom:15px;}
+.form-label{display:block;font-family:'Black Ops One',cursive;font-size:0.62rem;letter-spacing:2px;color:var(--muted);margin-bottom:6px;text-transform:uppercase;}
+.form-input,.form-textarea,.form-select{width:100%;background:var(--surface);border:1px solid var(--border);color:var(--text);font-family:'Rajdhani',sans-serif;font-size:0.95rem;padding:10px 13px;outline:none;transition:border-color 0.2s;}
+.form-input:focus,.form-textarea:focus,.form-select:focus{border-color:var(--accent);}
+.form-textarea{resize:vertical;min-height:90px;}
+.send-btn{font-family:'Black Ops One',cursive;font-size:0.78rem;letter-spacing:3px;padding:12px 30px;background:var(--accent2);color:#fff;border:none;cursor:pointer;transition:all 0.2s;clip-path:polygon(0 0,calc(100% - 10px) 0,100% 10px,100% 100%,0 100%);}
+.send-btn:hover{background:#ff6688;box-shadow:0 0 25px rgba(255,45,85,0.35);}
+
+/* EMPTY STATE */
+.empty-state{text-align:center;padding:56px 20px;color:var(--muted);}
+.empty-icon{font-size:3rem;margin-bottom:10px;}
+.empty-state p{font-family:'Black Ops One',cursive;letter-spacing:1px;}
+
+/* MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.88);z-index:1000;align-items:center;justify-content:center;padding:20px;}
+.modal-overlay.open{display:flex;}
+.modal{background:var(--surface);border:1px solid var(--border);padding:34px;width:100%;max-width:510px;position:relative;clip-path:polygon(0 0,calc(100% - 22px) 0,100% 22px,100% 100%,0 100%);animation:fadeUp 0.2s ease;max-height:90vh;overflow-y:auto;}
+.modal::before{content:'';position:absolute;top:0;right:0;width:22px;height:22px;background:var(--accent);clip-path:polygon(0 0,100% 100%,100% 0);}
+.modal.mc::before{background:var(--community);}
+.modal.mp::before{background:var(--accent3);}
+.modal-title{font-family:'Black Ops One',cursive;font-size:1.1rem;letter-spacing:2px;margin-bottom:22px;color:var(--accent);}
+.modal-title.mc{color:var(--community);}
+.modal-title.mp{color:var(--accent3);}
+.file-chosen{font-size:0.8rem;color:var(--muted);margin-top:6px;font-weight:600;}
+.pick-file-btn{font-family:'Black Ops One',cursive;font-size:0.68rem;letter-spacing:1px;padding:8px 16px;background:transparent;border:1px solid var(--border);color:var(--text);cursor:pointer;transition:all 0.2s;margin-top:7px;display:inline-block;}
+.pick-file-btn:hover{border-color:var(--accent);color:var(--accent);}
+.modal-actions{display:flex;gap:10px;margin-top:22px;flex-wrap:wrap;}
+.submit-btn{font-family:'Black Ops One',cursive;font-size:0.72rem;letter-spacing:2px;padding:11px 26px;background:var(--accent);color:#000;border:none;cursor:pointer;clip-path:polygon(0 0,calc(100% - 8px) 0,100% 8px,100% 100%,0 100%);transition:all 0.2s;}
+.submit-btn:hover{background:#fff;}
+.submit-btn.sc{background:var(--community);}
+.submit-btn.sp{background:var(--accent3);}
+.submit-btn.sr{background:var(--accent2);color:#fff;}
+.cancel-btn{font-family:'Black Ops One',cursive;font-size:0.72rem;letter-spacing:2px;padding:11px 20px;background:transparent;border:1px solid var(--muted);color:var(--muted);cursor:pointer;transition:all 0.2s;}
+.cancel-btn:hover{border-color:var(--accent2);color:var(--accent2);}
+
+/* PASSWORD MODAL */
+.pw-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:2000;align-items:center;justify-content:center;}
+.pw-overlay.open{display:flex;}
+.pw-box{background:var(--surface);border:1px solid var(--accent3);padding:36px;width:90%;max-width:360px;text-align:center;}
+.pw-box h3{font-family:'Black Ops One',cursive;color:var(--accent3);letter-spacing:2px;margin-bottom:18px;font-size:1.1rem;}
+.pw-input{width:100%;background:var(--card);border:1px solid var(--border);color:var(--text);font-family:'Rajdhani',sans-serif;font-size:1.1rem;padding:11px;outline:none;text-align:center;letter-spacing:4px;margin-bottom:12px;}
+.pw-input:focus{border-color:var(--accent3);}
+.pw-sub{font-family:'Black Ops One',cursive;font-size:0.78rem;letter-spacing:2px;padding:12px;background:var(--accent3);color:#000;border:none;cursor:pointer;width:100%;margin-bottom:10px;}
+.pw-err{color:var(--accent2);font-size:0.78rem;margin-top:6px;display:none;}
+
+/* TOAST */
+.toast{position:fixed;bottom:22px;right:22px;background:var(--accent);color:#000;font-family:'Black Ops One',cursive;font-size:0.76rem;letter-spacing:1px;padding:13px 22px;z-index:9000;clip-path:polygon(0 0,calc(100% - 8px) 0,100% 8px,100% 100%,0 100%);transform:translateX(220%);transition:transform 0.3s ease;}
+.toast.show{transform:translateX(0);}
+.toast.tc{background:var(--community);}
+.toast.te{background:var(--accent2);color:#fff;}
+.toast.tp{background:var(--accent3);}
+
+footer{position:relative;z-index:10;text-align:center;padding:16px 48px 22px;color:var(--muted);font-size:0.78rem;letter-spacing:1px;border-top:1px solid var(--border);}
+footer span{color:var(--accent2);}
+
+@media(max-width:660px){
+  header{padding:18px 18px;}nav{padding:0 18px;}main{padding:28px 18px;}
+  .logo{font-size:1.5rem;}.tab-btn{font-size:0.64rem;padding:13px 10px;letter-spacing:1px;}
+  .contact-card{padding:24px 18px;}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">Outside<span>Games</span></div>
+  <div class="header-right">
+    <div id="adminBadge" style="display:none;"><span class="badge-admin">ADMIN</span></div>
+    <button class="admin-btn" id="adminBtn" onclick="toggleAdmin()">⚙ Admin</button>
+  </div>
+</header>
+
+<nav>
+  <button class="tab-btn active" onclick="showTab('verified',this)">✅ Verified Games</button>
+  <button class="tab-btn ctab" onclick="showTab('community',this)">🌐 Community</button>
+  <button class="tab-btn" onclick="showTab('source',this)">💻 Source Code</button>
+  <button class="tab-btn ptab" onclick="showTab('projects',this)">🚀 Upcoming Projects</button>
+  <button class="tab-btn contact-tab" onclick="showTab('contact',this)">📬 Contact</button>
+</nav>
+
+<main>
+
+  <!-- ===== VERIFIED GAMES ===== -->
+  <div class="tab-panel active" id="tab-verified">
+    <div class="section-head">
+      <div class="section-title">Verified Games</div>
+      <div class="section-sub">Official releases from Outside Games</div>
+    </div>
+    <div class="admin-panel" id="apVerified">
+      <div class="admin-panel-title">⚙ ADMIN — Verified Games</div>
+      <div class="admin-actions">
+        <button class="admin-action-btn" onclick="openModal('verified')">＋ Upload Game</button>
+      </div>
+    </div>
+    <div class="games-grid" id="verifiedGrid">
+      <div class="empty-state" id="emptyVerified"><div class="empty-icon">🎮</div><p>No verified games yet.</p></div>
+    </div>
+  </div>
+
+  <!-- ===== COMMUNITY ===== -->
+  <div class="tab-panel" id="tab-community">
+    <div class="section-head">
+      <div class="section-title cv">Community Uploads</div>
+      <div class="section-sub">Games uploaded by the community — anyone can share!</div>
+    </div>
+    <div class="games-grid" style="margin-bottom:24px;">
+      <div class="upload-zone czn" id="czn" onclick="openModal('community')"
+           ondragover="dov(event,'czn')" ondragleave="dol('czn')" ondrop="doDrop(event,'community')">
+        <div class="upload-icon">⬆</div>
+        <div class="upload-label">Upload Your Game</div>
+        <div class="upload-sub">.exe or .zip — Click or Drag & Drop</div>
+        <div class="upload-sub" style="font-size:0.72rem;margin-top:4px;">Share your creation with everyone!</div>
+      </div>
+    </div>
+    <div class="games-grid" id="communityGrid">
+      <div class="empty-state" id="emptyCommunity"><div class="empty-icon">🌐</div><p>No uploads yet. Be the first!</p></div>
+    </div>
+  </div>
+
+  <!-- ===== SOURCE CODE ===== -->
+  <div class="tab-panel" id="tab-source">
+    <div class="section-head">
+      <div class="section-title">Source Code</div>
+      <div class="section-sub">Open source releases from Outside Games</div>
+    </div>
+    <div class="admin-panel" id="apSource">
+      <div class="admin-panel-title">⚙ ADMIN — Source Code</div>
+      <div class="admin-actions">
+        <button class="admin-action-btn" onclick="openModal('source')">＋ Add Repo</button>
+      </div>
+    </div>
+    <div class="source-grid" id="sourceGrid">
+      <div class="empty-card" id="emptySource"><p>No repos yet</p><small>Source releases will appear here.</small></div>
+    </div>
+  </div>
+
+  <!-- ===== UPCOMING PROJECTS ===== -->
+  <div class="tab-panel" id="tab-projects">
+    <div class="section-head">
+      <div class="section-title pv">Upcoming Projects</div>
+      <div class="section-sub">Announcements & what we're building</div>
+    </div>
+    <div class="admin-panel" id="apProjects">
+      <div class="admin-panel-title">⚙ ADMIN — Upcoming Projects</div>
+      <div class="admin-actions">
+        <button class="admin-action-btn" onclick="openModal('project')">＋ New Post</button>
+      </div>
+    </div>
+    <div class="projects-grid" id="projectsGrid">
+      <div class="empty-state" id="emptyProjects" style="grid-column:1/-1;"><div class="empty-icon">🚀</div><p>No announcements yet. Check back soon!</p></div>
+    </div>
+  </div>
+
+  <!-- ===== CONTACT ===== -->
+  <div class="tab-panel" id="tab-contact">
+    <div class="section-head">
+      <div class="section-title rv">Contact</div>
+      <div class="section-sub">Get in touch with Outside Games</div>
+    </div>
+    <div class="contact-wrap">
+      <div class="contact-card">
+        <p class="contact-intro">Have a question, collab idea, bug report, or just want to say hi? Send us a message — we read everything.</p>
+        <a class="email-link" href="mailto:gooutsidegames1@gmail.com">✉ gooutsidegames1@gmail.com</a>
+        <div class="form-group">
+          <label class="form-label">Your Name</label>
+          <input class="form-input" id="cName" placeholder="Your name">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Your Email</label>
+          <input class="form-input" type="email" id="cEmail" placeholder="you@email.com">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Message</label>
+          <textarea class="form-textarea" id="cMsg" placeholder="What's on your mind?"></textarea>
+        </div>
+        <button class="send-btn" onclick="sendMail()">Send Message →</button>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<footer>&copy; 2026 <span>Outside Games</span> — All rights reserved</footer>
+
+<!-- ===== MAIN MODAL ===== -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal" id="mainModal">
+    <div class="modal-title" id="modalTitle">Upload</div>
+
+    <!-- GAME FIELDS -->
+    <div id="gameFields">
+      <div class="form-group">
+        <label class="form-label">Game Title *</label>
+        <input class="form-input" id="mTitle" placeholder="Enter game title">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Description</label>
+        <textarea class="form-textarea" id="mDesc" placeholder="Short description..."></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Genre / Tags (comma separated)</label>
+        <input class="form-input" id="mTags" placeholder="Action, Platformer, RPG">
+      </div>
+      <div class="form-group" id="uploaderGroup">
+        <label class="form-label">Your Name / Handle</label>
+        <input class="form-input" id="mUploader" placeholder="Anonymous">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Icon Emoji (optional)</label>
+        <input class="form-input" id="mEmoji" placeholder="🎮  🌌  🔥  ⚔️  🧩">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Game File (.exe or .zip)</label>
+        <button class="pick-file-btn" onclick="document.getElementById('hiddenFile').click()">📁 Choose File</button>
+        <input type="file" id="hiddenFile" accept=".exe,.zip" onchange="onFileChosen(this)">
+        <div class="file-chosen" id="fileLabel">No file chosen</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Or paste a download link</label>
+        <input class="form-input" id="mLink" placeholder="https://...">
+      </div>
+    </div>
+
+    <!-- SOURCE FIELDS -->
+    <div id="sourceFields" style="display:none;">
+      <div class="form-group">
+        <label class="form-label">Repo / Project Name *</label>
+        <input class="form-input" id="sName" placeholder="e.g. Void Runner">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Language</label>
+        <input class="form-input" id="sLang" placeholder="JS, Python, C#, GDScript...">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Description</label>
+        <textarea class="form-textarea" id="sDesc" placeholder="What's in this repo?"></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Link (GitHub, itch.io, etc.)</label>
+        <input class="form-input" id="sLink" placeholder="https://github.com/...">
+      </div>
+    </div>
+
+    <!-- PROJECT FIELDS -->
+    <div id="projectFields" style="display:none;">
+      <div class="form-group">
+        <label class="form-label">Title *</label>
+        <input class="form-input" id="pTitle" placeholder="New Game Announcement...">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Status</label>
+        <select class="form-select" id="pStatus">
+          <option>In Development</option>
+          <option>Coming Soon</option>
+          <option>Alpha</option>
+          <option>Beta</option>
+          <option>Announcement</option>
+          <option>Update</option>
+          <option>Released!</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Body / Description</label>
+        <textarea class="form-textarea" id="pDesc" placeholder="Tell the community what's coming..." style="min-height:110px;"></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Expected Date (optional)</label>
+        <input class="form-input" id="pDate" placeholder="Q2 2026, Summer 2026...">
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="submit-btn" id="submitBtn" onclick="submitModal()">Submit</button>
+      <button class="cancel-btn" onclick="closeModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== ADMIN PASSWORD MODAL ===== -->
+<div class="pw-overlay" id="pwOverlay">
+  <div class="pw-box">
+    <h3>🔐 Admin Access</h3>
+    <input class="pw-input" type="password" id="pwInput" placeholder="••••••" onkeydown="if(event.key==='Enter')checkPw()">
+    <button class="pw-sub" onclick="checkPw()">Unlock Admin</button>
+    <button class="cancel-btn" onclick="closePw()" style="width:100%;">Cancel</button>
+    <div class="pw-err" id="pwErr">Wrong password. Try again.</div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ========== STATE ==========
+const ADMIN_PW = 'outsidegames2026'; // Change this to your real password!
+let isAdmin = false;
+let currentModal = '';
+let chosenFile = null;
+
+// localStorage persistence
+let vGames = parse('og_v') || [];
+let cGames = parse('og_c') || [];
+let sRepos = parse('og_s') || [];
+let projects = parse('og_p') || [];
+
+function parse(k){ try{ return JSON.parse(localStorage.getItem(k)); }catch(e){ return null; } }
+function save(){
+  localStorage.setItem('og_v', JSON.stringify(vGames));
+  localStorage.setItem('og_c', JSON.stringify(cGames));
+  localStorage.setItem('og_s', JSON.stringify(sRepos));
+  localStorage.setItem('og_p', JSON.stringify(projects));
+}
+
+// ========== TABS ==========
+function showTab(name, btn){
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  btn.classList.add('active');
+}
+
+// ========== ADMIN ==========
+function toggleAdmin(){
+  if(isAdmin){ logoutAdmin(); return; }
+  document.getElementById('pwOverlay').classList.add('open');
+  setTimeout(()=>document.getElementById('pwInput').focus(), 100);
+}
+function checkPw(){
+  if(document.getElementById('pwInput').value === ADMIN_PW){
+    isAdmin = true; closePw(); enableAdmin(); showToast('Admin unlocked ⚡', 'tp');
+  } else {
+    document.getElementById('pwErr').style.display = 'block';
+  }
+}
+function closePw(){
+  document.getElementById('pwOverlay').classList.remove('open');
+  document.getElementById('pwInput').value = '';
+  document.getElementById('pwErr').style.display = 'none';
+}
+function enableAdmin(){
+  document.getElementById('adminBadge').style.display = 'inline';
+  document.getElementById('adminBtn').textContent = '⚙ Logout';
+  ['apVerified','apSource','apProjects'].forEach(id=>document.getElementById(id).classList.add('open'));
+  renderAll();
+}
+function logoutAdmin(){
+  isAdmin = false;
+  document.getElementById('adminBadge').style.display = 'none';
+  document.getElementById('adminBtn').textContent = '⚙ Admin';
+  ['apVerified','apSource','apProjects'].forEach(id=>document.getElementById(id).classList.remove('open'));
+  renderAll();
+}
+
+// ========== MODAL ==========
+function openModal(type){
+  currentModal = type;
+  chosenFile = null;
+  document.getElementById('fileLabel').textContent = 'No file chosen';
+  ['mTitle','mDesc','mTags','mEmoji','mLink','mUploader','sName','sLang','sDesc','sLink','pTitle','pDesc','pDate'].forEach(id=>{ const e=document.getElementById(id); if(e) e.value=''; });
+  const modal = document.getElementById('mainModal');
+  const title = document.getElementById('modalTitle');
+  const btn = document.getElementById('submitBtn');
+  const gf = document.getElementById('gameFields');
+  const sf = document.getElementById('sourceFields');
+  const pf = document.getElementById('projectFields');
+
+  gf.style.display = sf.style.display = pf.style.display = 'none';
+  modal.classList.remove('mc','mp');
+  title.classList.remove('mc','mp');
+  btn.classList.remove('sc','sp','sr');
+
+  if(type==='verified'){
+    title.textContent='⬆ Upload Verified Game'; gf.style.display='block';
+    document.getElementById('uploaderGroup').style.display='none';
+    btn.textContent='Upload Game';
+  } else if(type==='community'){
+    title.textContent='⬆ Submit Community Game'; title.classList.add('mc'); modal.classList.add('mc');
+    btn.classList.add('sc'); btn.textContent='Submit Game'; gf.style.display='block';
+    document.getElementById('uploaderGroup').style.display='block';
+  } else if(type==='source'){
+    title.textContent='+ Add Source Repo'; sf.style.display='block'; btn.classList.add('sr'); btn.textContent='Add Repo';
+  } else if(type==='project'){
+    title.textContent='🚀 Post Announcement'; title.classList.add('mp'); modal.classList.add('mp');
+    btn.classList.add('sp'); btn.textContent='Post'; pf.style.display='block';
+  }
+
+  document.getElementById('modalOverlay').classList.add('open');
+}
+function closeModal(){ document.getElementById('modalOverlay').classList.remove('open'); chosenFile=null; }
+function onFileChosen(input){
+  if(input.files[0]){ chosenFile=input.files[0]; document.getElementById('fileLabel').textContent='📁 '+chosenFile.name+' ('+((chosenFile.size/1024/1024).toFixed(2))+' MB)'; }
+}
+
+function submitModal(){
+  if(currentModal==='verified'){
+    const t=v('mTitle'); if(!t){ showToast('Enter a title','te'); return; }
+    const link = chosenFile ? URL.createObjectURL(chosenFile) : v('mLink');
+    const ext = chosenFile ? chosenFile.name.split('.').pop().toUpperCase() : (v('mLink')?'LINK':'');
+    vGames.push({id:Date.now(),title:t,desc:v('mDesc'),tags:v('mTags').split(',').map(x=>x.trim()).filter(Boolean),emoji:v('mEmoji')||'🎮',link,ext,date:today()});
+    save(); renderVerified(); closeModal(); showToast('Game uploaded! ✅');
+
+  } else if(currentModal==='community'){
+    const t=v('mTitle'); if(!t){ showToast('Enter a title','te'); return; }
+    const link = chosenFile ? URL.createObjectURL(chosenFile) : v('mLink');
+    const ext = chosenFile ? chosenFile.name.split('.').pop().toUpperCase() : (v('mLink')?'LINK':'');
+    cGames.push({id:Date.now(),title:t,desc:v('mDesc'),tags:v('mTags').split(',').map(x=>x.trim()).filter(Boolean),emoji:v('mEmoji')||'🎮',uploader:v('mUploader')||'Anonymous',link,ext,date:today()});
+    save(); renderCommunity(); closeModal(); showToast('Game submitted! 🌐','tc');
+
+  } else if(currentModal==='source'){
+    const n=v('sName'); if(!n){ showToast('Enter a name','te'); return; }
+    sRepos.push({id:Date.now(),name:n,lang:v('sLang')||'Unknown',desc:v('sDesc'),link:v('sLink')});
+    save(); renderSource(); closeModal(); showToast('Repo added! 💻');
+
+  } else if(currentModal==='project'){
+    const t=v('pTitle'); if(!t){ showToast('Enter a title','te'); return; }
+    projects.unshift({id:Date.now(),title:t,status:document.getElementById('pStatus').value,desc:v('pDesc'),date:v('pDate'),posted:today()});
+    save(); renderProjects(); closeModal(); showToast('Posted! 🚀','tp');
+  }
+}
+
+// ========== RENDER ==========
+function renderAll(){ renderVerified(); renderCommunity(); renderSource(); renderProjects(); }
+
+function renderVerified(){
+  const grid=document.getElementById('verifiedGrid'), empty=document.getElementById('emptyVerified');
+  Array.from(grid.children).forEach(c=>{ if(c!==empty) c.remove(); });
+  if(!vGames.length){ empty.style.display='block'; return; }
+  empty.style.display='none';
+  vGames.forEach(g=>grid.appendChild(makeCard(g,false)));
+}
+
+function renderCommunity(){
+  const grid=document.getElementById('communityGrid'), empty=document.getElementById('emptyCommunity');
+  Array.from(grid.children).forEach(c=>{ if(c!==empty) c.remove(); });
+  if(!cGames.length){ empty.style.display='block'; return; }
+  empty.style.display='none';
+  cGames.forEach(g=>grid.appendChild(makeCard(g,true)));
+}
+
+function makeCard(g, isCom){
+  const card=document.createElement('div');
+  card.className='game-card'+(isCom?' cc':'');
+  const tags=g.tags.map(t=>`<span class="tag ${isCom?'tc':''}">${t}</span>`).join('');
+  const ext=g.ext?`<span class="tag tm">${g.ext}</span>`:'';
+  const meta=isCom?`by <b style="color:var(--community)">${g.uploader}</b> &bull; ${g.date}`:g.date;
+  const dl=g.link?`<a class="dl-btn ${isCom?'dc':''}" href="${g.link}" download>⬇ Download</a>`:`<span style="color:var(--muted);font-size:0.8rem;">No file</span>`;
+  const del=isAdmin?`<button class="del-btn" onclick="${isCom?'delC':'delV'}(${g.id})">✕ Remove</button>`:'';
+  card.innerHTML=`
+    <div class="game-thumb">${g.emoji||'🎮'}<span class="vbadge ${isCom?'vc':'vv'}">${isCom?'COMMUNITY':'VERIFIED'}</span></div>
+    <div class="game-body">
+      <div class="game-title">${g.title}</div>
+      <div class="game-meta-line">${meta}</div>
+      <div class="game-desc">${g.desc||'No description.'}</div>
+      <div class="game-tags">${tags}${ext}</div>
+      <div class="game-actions">${dl}${del}</div>
+    </div>`;
+  return card;
+}
+
+function delV(id){ if(!confirm('Remove?')) return; vGames=vGames.filter(g=>g.id!==id); save(); renderVerified(); showToast('Removed.'); }
+function delC(id){ if(!isAdmin){showToast('Admins only','te');return;} if(!confirm('Remove?')) return; cGames=cGames.filter(g=>g.id!==id); save(); renderCommunity(); showToast('Removed.'); }
+
+function renderSource(){
+  const grid=document.getElementById('sourceGrid'), empty=document.getElementById('emptySource');
+  Array.from(grid.children).forEach(c=>{ if(c!==empty) c.remove(); });
+  if(!sRepos.length){ empty.style.display='block'; return; }
+  empty.style.display='none';
+  sRepos.forEach(r=>{
+    const card=document.createElement('div'); card.className='source-card';
+    const del=isAdmin?`<button class="del-btn" onclick="delS(${r.id})" style="font-size:0.6rem;padding:5px 9px;margin-left:auto;">✕</button>`:'';
+    card.innerHTML=`
+      <div class="source-head"><div class="source-name">💾 ${r.name}</div><span class="source-lang">${r.lang}</span>${del}</div>
+      <div class="source-desc">${r.desc||'No description.'}</div>
+      ${r.link?`<a class="source-btn" href="${r.link}" target="_blank">⬇ View Code</a>`:''}`;
+    grid.appendChild(card);
+  });
+}
+function delS(id){ if(!confirm('Remove?')) return; sRepos=sRepos.filter(r=>r.id!==id); save(); renderSource(); showToast('Removed.'); }
+
+function renderProjects(){
+  const grid=document.getElementById('projectsGrid'), empty=document.getElementById('emptyProjects');
+  Array.from(grid.children).forEach(c=>{ if(c!==empty) c.remove(); });
+  if(!projects.length){ empty.style.display='block'; return; }
+  empty.style.display='none';
+  projects.forEach(p=>{
+    const card=document.createElement('div'); card.className='project-card';
+    const del=isAdmin?`<button class="proj-del" onclick="delP(${p.id})">✕ Remove</button>`:'';
+    card.innerHTML=`
+      <div class="project-status">${p.status}</div>
+      <div class="project-title">${p.title}</div>
+      <div class="project-desc">${p.desc||''}</div>
+      ${p.date?`<div class="project-date">Expected: <span>${p.date}</span></div>`:''}
+      <div class="project-date" style="margin-top:5px;">Posted: <span>${p.posted}</span></div>
+      ${del}`;
+    grid.appendChild(card);
+  });
+}
+function delP(id){ if(!confirm('Remove?')) return; projects=projects.filter(p=>p.id!==id); save(); renderProjects(); showToast('Removed.'); }
+
+// ========== DRAG & DROP ==========
+function dov(e, id){ e.preventDefault(); document.getElementById(id).classList.add('dov'); }
+function dol(id){ document.getElementById(id).classList.remove('dov'); }
+function doDrop(e, type){
+  e.preventDefault(); dol('czn');
+  const file=e.dataTransfer.files[0]; if(!file) return;
+  const ext=file.name.split('.').pop().toLowerCase();
+  if(!['exe','zip'].includes(ext)){ showToast('Only .exe or .zip files!','te'); return; }
+  openModal(type);
+  setTimeout(()=>{ chosenFile=file; document.getElementById('fileLabel').textContent='📁 '+file.name+' ('+((file.size/1024/1024).toFixed(2))+' MB)'; }, 120);
+}
+
+// ========== CONTACT ==========
+function sendMail(){
+  const name=v('cName'), email=v('cEmail'), msg=v('cMsg');
+  const sub=encodeURIComponent('Message from '+(name||'a visitor'));
+  const body=encodeURIComponent((name?'Name: '+name+'\n':'')+(email?'Email: '+email+'\n\n':'')+msg);
+  window.location.href='mailto:gooutsidegames1@gmail.com?subject='+sub+'&body='+body;
+}
+
+// ========== UTILS ==========
+function v(id){ const e=document.getElementById(id); return e?e.value.trim():''; }
+function today(){ return new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}); }
+function showToast(msg, cls=''){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.className='toast show'+(cls?' '+cls:'');
+  setTimeout(()=>t.classList.remove('show'), 2800);
+}
+
+// Close modal on outside click
+document.getElementById('modalOverlay').addEventListener('click',function(e){ if(e.target===this) closeModal(); });
+
+// Init
+renderAll();
+</script>
+</body>
+</html>
